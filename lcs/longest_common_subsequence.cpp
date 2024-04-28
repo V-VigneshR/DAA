@@ -14,7 +14,8 @@ int LCS_Length_DP(char x[], char y[], int m, int n, char b[][100], int c[][100])
     // m and n are the length of x and y respectively
     
     // Filling 0th Column with 0's
-    for (int i = 1; i <= m; i++) {
+    for (int i = 1; i <= m; i++) //note i starts from 1 as j will anyway set c[0,j] as 0! 
+    {
         c[i][0] = 0;
         cnt++;
     }
