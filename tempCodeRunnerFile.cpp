@@ -12,13 +12,13 @@ public:
     // Constructor to initialize the weight matrix
     FloydWarshall()
     {
-        n = m = 6; // Assuming size of matrices as 5x5
+        n = m = 5; // Assuming size of matrices as 5x5
         // Input for the weight matrix
         for(int i=0; i<n; i++)
         {
             for(int j=0; j<m; j++)
             {
-                cout << "Enter the array element A" <<i<<j<<"\t";
+                cout << "Enter the array element A" <<i<<j;
                 cin >> W[i][j];
             }
             cout << endl;
