@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iomanip>
-
+#include<limits.h>
 using namespace std;
 
 long int cnt = 0;
