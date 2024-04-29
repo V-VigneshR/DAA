@@ -1,120 +1,161 @@
-// Matrix Chain Multiplication - Optimal Ordering
+//Longest Common Subsequence
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <time.h>
 #include <iomanip>
+#include<limits.h>
 
 using namespace std;
 
 long int cnt = 0;
 
-// Matrix chain Ordering - Divide and Conquer Approach
-int MatrixChainDC(int p[], int i, int j) {
-    // Base case: If there is only one matrix in the sequence
-    if (i == j)
-        return 0;
-
-    int k;
-    int min = INT_MAX;
-    int t;
-    // Find the minimum number of scalar multiplications needed to compute
-    // the matrix chain product from matrix i to j
-    for (k = i; k < j; k++) {
+//LCS - Dynamic Programming
+int LCS_Length_DP(char x[], char y[], int m, int n, char b[][100], int c[][100]) {
+    // m and n are the length of x and y respectively
+    
+    // Filling 0th Column with 0's
+    for (int i = 1; i <= m; i++) //note i starts from 1 as j will anyway set c[0,j] as 0! 
+    {
+        c[i][0] = 0;
         cnt++;
-        // Compute the number of scalar multiplications needed to compute
-        // subproblems and combine them
-        t = MatrixChainDC(p, i, k) + MatrixChainDC(p, k + 1, j) + p[i - 1] * p[k] * p[j];
-        // Update the minimum if the current value is smaller
-        if (t < min)
-            min = t;
     }
-    return min;
-}
-
-// Matrix Chain Ordering - Dynamic Programming Approach
-long int MatrixChainDP(int p[], int n, long int m[][100], int s[][100]) {
-    int i, j, len, k;
-    long int q;
-    // Initialize the base case where there is only one matrix in the sequence
-    for (i = 1; i <= n; i++)
-        m[i][i] = 0;
-
-    // Fill in the table bottom-up for increasing subchain lengths
-    for (len = 2; len <= n; len++) {
-        for (i = 1; i <= n - len + 1; i++) {
-            j = i + len - 1;
-            m[i][j] = INT_MAX; // Initialize to infinity
-            // Iterate over possible split points and compute the minimum
-            // number of scalar multiplications
-            for (k = i; k <= j - 1; k++) {
-                cnt++;
-                q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];
-                // Update the minimum if the current value is smaller
-                if (q < m[i][j]) {
-                    m[i][j] = q;
-                    s[i][j] = k; // Record the split point
-                }
+    
+    // Filling 0th Row with 0's
+    for (int j = 0; j <= n; j++) {
+        c[0][j] = 0;
+        cnt++;
+    }
+    
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            cnt++;
+            if (x[i] == y[j]) {
+                c[i][j] = c[i-1][j-1] + 1;
+                b[i][j] = 'C';
+            } else if (c[i-1][j] >= c[i][j-1]) {
+                c[i][j] = c[i-1][j];
+                b[i][j] = 'U';
+            } else {
+                c[i][j] = c[i][j-1];
+                b[i][j] = 'L';
             }
         }
     }
-    return m[1][n]; // Return the minimum number of scalar multiplications
+    
+    return c[m][n];
 }
 
-// Function to print the optimal parenthesization
-void PrintOptimal(int s[][100], int i, int j) {
-    if (i == j)
-        cout << "A" << i; // Base case: Print single matrix
-    else {
-        cout << "(";
-        // Recursively print optimal parenthesization for left and right subchains
-        PrintOptimal(s, i, s[i][j]);
-        PrintOptimal(s, s[i][j] + 1, j);
-        cout << ")";
+//Print LCS
+void PrintLCS(char b[][100], char x[], int m, int n) {
+    if (m == 0 || n == 0) {
+        return;
+    }
+    
+    if (b[m][n] == 'C') {
+        PrintLCS(b, x, m-1, n-1);
+        cout << x[m];
+    } else if (b[m][n] == 'U') {
+        PrintLCS(b, x, m-1, n);
+    } else {
+        PrintLCS(b, x, m, n-1);
+    }
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+//LCS - Divide & Conquer
+int LCS_Length_DC(char X[], char Y[], int m, int n) {
+    cnt++;
+    if (m == 0 || n == 0) {
+        return 0;
+    }
+    
+    if (X[m-1] == Y[n-1]) {
+        return 1 + LCS_Length_DC(X, Y, m-1, n-1);
+    } else {
+        return max(LCS_Length_DC(X, Y, m, n-1), LCS_Length_DC(X, Y, m-1, n));
     }
 }
 
 int main() {
-    int n = 5; // Number of matrices
-    int p[] = {6, 5, 2, 6, 2, 4}; // Matrix dimensions
-
-    cout << "\nMatrix Chain Multiplication - Optimal Ordering";
-    cout << "\n\nInput:";
-    cout << "\n\tNumber of Matrices: " << n;
-    cout << "\n\tMatrices Dimensions: ";
-    for (int i = 0; i <= n; i++)
-        cout << "\t" << p[i];
-
-    // Divide & Conquer Approach
-    cout << "\n\nDivide & Conquer Approach:";
-    long int minDC;
-    cnt = 0;
-    minDC = MatrixChainDC(p, 1, n);
-    cout << "\n\nMinumum Number of Multiplications Required: " << minDC;
-    cout << "\nNumber of Active Operations: " << cnt;
-
-    // Dynamic Programming Approach
-    cout << "\n\nDynamic Programming Approach:";
-    long int minDP;
-    long int m[100][100]; // Table to store minimum number of multiplications
-    int s[100][100]; // Table to store split points for optimal parenthesization
-
-    // Initialize tables
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= n; j++) {
-            m[i][j] = -1; // Initialize to -1
-            s[i][j] = -1; // Initialize to -1
-        }
+    int n, m;
+    char x[100], y[100];
+    
+    cout << "\nEnter Length of First String: ";
+    cin >> m;
+    cout << "\nEnter Length of Second String: ";
+    cin >> n;
+    
+    srand(time(NULL));
+    
+    // Loading numbers to input file
+    ofstream outf;
+    
+    outf.open("in1.txt");
+    for (int i = 1; i <= m; i++) {
+        char random_char;
+        do {
+            random_char = rand() % 26 + 'A';
+        } while (random_char < 'A' || random_char > 'Z');
+        outf << "\t" << random_char;
     }
-
+    outf.close();
+    
+    outf.open("in2.txt");
+    for (int i = 1; i <= n; i++) {
+        char random_char;
+        do {
+            random_char = rand() % 26 + 'A';
+        } while (random_char < 'A' || random_char > 'Z');
+        outf << "\t" << random_char;
+    }
+    outf.close();
+    
+    // Reading input from the files
+    ifstream inf;
+    
+    inf.open("in1.txt");
+    for (int i = 1; i <= m; i++) {
+        inf >> x[i];
+    }
+    inf.close();
+    x[m] = '\0';
+    x[0] = ' ';
+    
+    inf.open("in2.txt");
+    for (int i = 1; i <= n; i++) {
+        inf >> y[i];
+    }
+    inf.close();
+    y[n] = '\0';
+    y[0] = ' ';
+    
+    cout << "\n\nX: " << x;
+    cout << "\n\nY: " << y;
+    
+    char b[100][100]; // U - Up, L - Left & C - Cross
+    int c[100][100];
+    
+    int lcs_length = 0;
+    
+    // LCS - Divide & Conquer
     cnt = 0;
-    minDP = MatrixChainDP(p, n, m, s);
-    cout << "\n\nMinumum Number of Multiplications Required: " << minDP;
+    lcs_length = LCS_Length_DC(x, y, m, n);
+    
+    cout << "\n\nLongest Common Subsequence Length (Divide & Conquer): " << lcs_length;
     cout << "\nNumber of Active Operations: " << cnt;
+    
+    // LCS - Dynamic Programming
+    cnt = 0;
+    lcs_length = LCS_Length_DP(x, y, m, n, b, c);
 
-    cout << "\n\nOptimal Solution: ";
-    // Print optimal parenthesization
-    PrintOptimal(s, 1, n);
+    cout << "\n\nLongest Common Subsequence Length (Dynamic Programming): " << lcs_length;
+    cout << "\nNumber of Active Operations: " << cnt;
+    cout << "\n\nLCS: ";
+    PrintLCS(b, x, m, n);
 
     return 0;
 }

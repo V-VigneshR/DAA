@@ -27,21 +27,21 @@ int Partition(int a[],int s,int e)
 
 int RPartition(int a[],int s,int e)
 {
-	srand ( time(NULL) );
-   int r = s+(rand() % (e-s+1));
-   swap(a[r],a[e]);
-   int m = Partition(a,s,e);
-   return m;
-   count++;
+	srand(time(NULL));
+	int r=(rand()%(e-s+1));
+	swap(a[r],a[e]);
+	int m=Partition(a,s,e);
+	count++;
+	return m;
+	
+
 }
-
-
-void RQuickSort(int a[],int s,int e)
+int RQuickSort(int a[],int s,int e)
 {
 	count++;
 	if(s>=e)
 		return;
-	int m = RPartition(a,s,e);
+	int m=RPartition(a,s,e);
 	RQuickSort(a,s,m-1);
 	RQuickSort(a,m+1,e);
 }
