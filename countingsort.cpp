@@ -1,116 +1,88 @@
-Find what you need faster … Home is your new landing page and surfaces your most relevant files and folders
-//Counting Sort
 #include<iostream>
-#include<fstream>
 #include<time.h>
-#include<stdlib.h>
+#include<cstdlib>
 #include<iomanip>
+#include<fstream>
 using namespace std;
 
-long int count=0;
-
-void CountingSort(int *a, int *b, int n, int k)
+// Function to find the maximum element in the array
+int getMax(int A[], int n)
 {
-	int *c;
-	
-	c = new int[k+1];
-	
-	for(int i=0;i<=k;i++)
-	{
-		count++;
-		c[i] = 0;
-	}
-	
-	for(int i=1;i<=n;i++)
-	{
-		count++;
-		c[a[i]] += 1; 
-	}
-	for(int i=1;i<=k;i++)
-	{
-		count++;
-		c[i] += c[i-1];
-	}
-	
-	for(int i=n;i>=1;i--)
-	{
-		count++;
-		b[c[a[i]]] = a[i];
-		c[a[i]] -= 1;
-	}
-		
-	delete(c);
+    int max = A[0];
+    for(int i = 1; i < n; i++)
+    {
+        if(A[i] > max)
+            max = A[i];
+    }
+    return max;
+}
+
+// Function to perform Counting Sort
+void CountingSort(int A[], int n)
+{
+    // Find the maximum element in the array
+    int max = getMax(A, n);
+
+    // Create an array to store counts of each element
+    int count[max+1];
+
+    // Create an array to store the sorted output
+    int output[n+1];
+
+    // Initialize count array to all zeros
+    for(int i = 0; i <= max; i++)
+        count[i] = 0;
+
+    // Count occurrences of each element in the input array
+    for(int j = 0; j < n; j++)
+        count[A[j]]++;
+
+    // Modify count array to store the actual position of each element in the output array
+    for(int i = 1; i <= max; i++)
+        count[i] += count[i-1];
+
+    // Build the sorted output array
+    for(int j = n-1; j >= 0; j--)
+    {
+        output[count[A[j]]-1] = A[j];
+        count[A[j]]--;
+    }
+
+    // Copy the sorted output array to the original array
+    for(int i = 0; i < n; i++)
+        A[i] = output[i];
 }
 
 int main()
 {
-	cout<<showpoint<<setprecision(12);
-	
-	ofstream outf;
-	ifstream inf;
+    int n;
+    int *a,*b;
 
-	clock_t st,end;
-	double etime;
+    // Input the size of the array
+    cout<<"\nEnter n:";
+    cin>>n;
 
-	int n;
-	int *a,*b;
-	
-	cout<<"\nEnter n:";
-	cin>>n;
-	
-	a = new int [n+1];
-	b = new int [n+1];
+    // Dynamically allocate memory for the arrays
+    a = new int [n+1];
+    b = new int [n+1];
 
+    // Input the elements of the array
+    for(int i=0;i<n;i++)
+    {
+        cin>>a[i];
+    }
 
-	srand((long int)clock());
-	
-	int k;
-	
-	//Maximum element value is restricted between 1 and n
-	k = n;
-	
-	//Loading numbers to input file
-	outf.open("in.txt");
-	for(int i=0;i<n;i++)
-	{
-		outf<<"\t"<<rand()%(k+1);
-	}
-	outf.close();
-	
-	//Counting Sort
-	
-	//Reading input in array from input file
-		
-	inf.open("in.txt");		
-	for(int i=1;i<=n;i++)
-	{
-		inf>>a[i];
-	}
-	inf.close();
-	
-	
-	st = clock();
-	
-	count = 0;
-	CountingSort(a,b,n,k);
-	
-	end = clock();
-	
-	etime = (double)(end-st)/CLOCKS_PER_SEC;
+    // Perform Counting Sort
+    CountingSort(a,n);
 
-	//Writing sorted numbers to output file
-	outf.open("CountOut.txt");
-	for(int i=1;i<=n;i++)
-	{
-		outf<<"\t"<<b[i];
-	}
-	outf.close();
-	
-	cout<<"\nCounting Sort:";
-	cout<<"\nTotal Active Operations: "<<count;
-	cout<<"\nExecution Time: "<<etime<<" Seconds\n";
-	
+    // Output the sorted array
+    cout<<"Sorted array:";
+    for(int i=0;i<n;i++)
+    {
+        cout<<a[i];
+    }
 
-	delete(a);
-	delete(b);
+    // Free memory allocated for the arrays
+    delete[] a;
+    delete[] b;
 }
